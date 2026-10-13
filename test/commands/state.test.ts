@@ -150,6 +150,24 @@ describe("state commands", () => {
       }
     });
 
+    it("closes with a GitLab merge request URL with nested groups", async () => {
+      const b = makeBacklog();
+      const url =
+        "https://gitlab.amanotes.net/mep/tools/browser-automation/-/merge_requests/1";
+      try {
+        const out = await doneCommand(
+          ["cert-cleanup", "--pr", url, "--no-prune"],
+          b.ctx,
+        );
+        expect(out).toContain(`done cert-cleanup -> Done (pr ${url})`);
+        const read = b.read();
+        expect(read).toContain(url);
+        expect(read).toContain("(merged 2026-07-01)");
+      } finally {
+        b.cleanup();
+      }
+    });
+
     it("rejects non-canonical pull URLs without mutating", async () => {
       const b = makeBacklog();
       try {
@@ -158,6 +176,9 @@ describe("state commands", () => {
           "https://github.com/o/r/pulls/9",
           "https://github.com/o/r/pull/9?w=1",
           " https://github.com/o/r/pull/9 ",
+          "https://github.com/o/r/-/merge_requests/9",
+          "https://gitlab.com/o/r/-/issues/9",
+          "https://gitlab.com/o/r/merge_requests/9",
         ]) {
           await expect(
             doneCommand(["cert-cleanup", "--pr", url, "--no-prune"], b.ctx),
@@ -349,6 +370,25 @@ describe("state commands", () => {
         expect(read).toContain("backfilled review evidence");
         expect(read).toContain("(merged 2026-06-22)");
         expect(read).not.toContain("(merged 2026-07-01)");
+        expect(b.archive()).toBe("");
+      } finally {
+        b.cleanup();
+      }
+    });
+
+    it("backfills a GitLab merge request URL on an already done task", async () => {
+      const b = makeBacklog();
+      const url =
+        "https://gitlab.amanotes.net/mep/tools/cloudflare-workers/-/merge_requests/3";
+      try {
+        const out = await doneCommand(
+          ["lease-core-t4", "--pr", url, "--keep", "0", "--no-prune"],
+          b.ctx,
+        );
+        expect(out).toContain("already: true");
+        const read = b.read();
+        expect(read).toContain(url);
+        expect(read).toContain("(merged 2026-06-22)");
         expect(b.archive()).toBe("");
       } finally {
         b.cleanup();
