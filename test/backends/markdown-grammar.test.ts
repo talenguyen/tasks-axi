@@ -339,11 +339,19 @@ describe("markdown grammar", () => {
       ]);
     });
 
+    it("derives a GitLab merge request URL with nested groups as the single pr link", () => {
+      const url =
+        "https://gitlab.amanotes.net/mep/tools/browser-automation/-/merge_requests/1";
+      expect(deriveLinks(`merged ${url}.`)).toEqual([{ kind: "pr", url }]);
+    });
+
     it("keeps non-canonical PR-ish URLs as doc links, never pr", () => {
       for (const url of [
         "https://forgejo.samesies.gay/eve/orchalycious/pull/39",
         "https://github.com/o/r/pulls/42",
         "https://forgejo.samesies.gay/o/r/pulls/39?tab=files",
+        "https://github.com/o/r/-/merge_requests/42",
+        "https://gitlab.amanotes.net/o/r/merge_requests/42",
       ]) {
         expect(deriveLinks(`see ${url}`)).toEqual([{ kind: "doc", url }]);
       }

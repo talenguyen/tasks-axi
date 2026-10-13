@@ -8,11 +8,36 @@ describe("isPrUrl", () => {
     "https://github.com/some-owner/some.repo/pull/1",
     "https://forgejo.samesies.gay/eve/orchalycious/pulls/39",
     "https://codeberg.org/forgejo/forgejo/pulls/1234",
+    "https://gitlab.amanotes.net/mep/tools/browser-automation/-/merge_requests/1",
+    "https://gitlab.com/group/project/-/merge_requests/12",
+    "https://gitlab.amanotes.net/mep/tools/cloudflare-workers/-/merge_requests/3",
   ])("accepts canonical PR URL %s", (url) => {
     expect(isPrUrl(url)).toBe(true);
   });
 
   it.each([
+    // GitLab MR shape: github.com is GitHub-only
+    "https://github.com/o/r/-/merge_requests/1",
+    // GitLab route confusion and marker
+    "https://gitlab.com/o/r/merge_requests/1",
+    "https://gitlab.com/o/r/-/pull/1",
+    "https://gitlab.com/o/r/-/issues/1",
+    "https://gitlab.com/o/r/-/merge_requests/1/diffs",
+    "https://gitlab.com/o/r/-/merge_requests/0",
+    "https://gitlab.com/o/r/-/merge_requests/01",
+    "https://gitlab.com/o/r/-/merge_requests/",
+    "https://gitlab.com/-/merge_requests/1",
+    "https://gitlab.com/o/-/-/merge_requests/1",
+    "https://gitlab.com/o/./-/merge_requests/1",
+    "https://gitlab.com/o/../-/merge_requests/1",
+    "https://gitlab.com/o/r/-/merge_requests/1?tab=diffs",
+    "https://gitlab.com/o/r/-/merge_requests/1#note_1",
+    "https://gitlab.com/o/r/-/merge_requests/1/",
+    "https://user@gitlab.com/o/r/-/merge_requests/1",
+    "https://gitlab.com:8443/o/r/-/merge_requests/1",
+    "https://GitLab.Com/o/r/-/merge_requests/1",
+    "https://gitlab.com/o%2Fx/r/-/merge_requests/1",
+    "http://gitlab.com/o/r/-/merge_requests/1",
     // singular/plural route confusion
     "https://github.com/o/r/pulls/42",
     "https://forgejo.samesies.gay/eve/orchalycious/pull/39",
